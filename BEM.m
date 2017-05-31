@@ -5,7 +5,7 @@ function [thrust torque power] = BEM(liftfunc, pitch, CHORD, BETA, BLADE, v, rpm
     THETA = (pitch+BETA)*pi/180;                                                % calculate theta along the blade
     A0 = 0.1*ones(size(BLADE)); B0 = 0.01*ones(size(BLADE));                    % initialize A0, B0
     
-    % use gradient descent to find the induced velocity at each element
+    % calculate cost function and gradient at each element along the blade
     function [J grad] = bemfuncmin(ABs)
       A0 = ABs(1:size(BLADE,2)); B0 = ABs((size(BLADE,2)+1):end);               % unpack the A0 and B0 vectors
       A0 = A0'; B0 = B0';                                                       % put into row vector form
