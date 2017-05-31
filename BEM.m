@@ -1,5 +1,4 @@
 function [thrust torque power] = BEM(liftfunc, pitch, CHORD, BETA, BLADE, v, rpm, rho, blades)
-    
     element = BLADE(end)-BLADE(end-1); omega = (rpm/60)*2*pi;                   % calculate element size and angular velocity
     K1 = 0.5*rho*blades*CHORD; K2 = 0.5*rho*blades*CHORD.*BLADE;                % calculate equation constants
     K3 = 4.0*pi*rho*v^2; K4 = K3*omega/v;                                       % calculate equation constants
