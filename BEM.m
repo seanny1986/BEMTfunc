@@ -1,4 +1,14 @@
 function [thrust torque power] = BEM(liftfunc, pitch, CHORD, BETA, BLADE, v, rpm, rho, blades)
+    % args -- liftfunc is a function handle to a lookup table that takes in an angle, and produces [CL, CD]
+    % pitch is the pitching angle of the blade in degrees
+    % CHORD is the vector of station-wise chords along the blade
+    % BETA is the vector of station-wise blade angles due to twist, in degrees
+    % BLADE is the vector of radial positions of each blade element
+    % v is the entry velocity to the disc, in m/s
+    % rpm is the rotation per minute of the prop_test_2
+    % rho is atmospheric density in metric units
+    % blades is the number of prop blades
+    
     element = BLADE(end)-BLADE(end-1); omega = (rpm/60)*2*pi;                   % calculate element size and angular velocity
     K1 = 0.5*rho*blades*CHORD; K2 = 0.5*rho*blades*CHORD.*BLADE;                % calculate equation constants
     K3 = 4.0*pi*rho*v^2; K4 = K3*omega/v;                                       % calculate equation constants
@@ -27,12 +37,12 @@ function [thrust torque power] = BEM(liftfunc, pitch, CHORD, BETA, BLADE, v, rpm
     end
     
     costfunction = @(P)bemfuncmin(P);                                           % establish cost function
-    options = optimset('MaxIter', 10000);                                        % set options
+    options = optimset('MaxIter', 100000, 'GradObj','on');                      % set options
     ABs = [A0(:); B0(:)];                                                       % pack A0, B0 into single column vector
-    [ABs cost] = fminunc(costfunction, ABs, options);                            % solving using conjugate gradient
-        
+    [ABs cost] = fminunc(costfunction, ABs, options);                           % solving using unconstrained fmin     
     A0 = ABs(1:size(BLADE,2)); B0 = ABs((size(BLADE,2)+1):end);                 % unpack the A0 and B0 vectors
     A0 = A0'; B0 = B0';                                                         % put into row vector form
     [DT DQ] = bemsolve(A0, B0);                                                 % solve system using converged A0 and B0 values
-    thrust=sum(DT*element); torque=sum(DQ*element); power = torque*omega;       % calculate thrust, torque, power
+    thrust=sum(DT*element); torque=sum(DQ*element);                             % calculate thrust, torque 
+    power = torque*omega;                                                       % calculate power
 end
