@@ -22,8 +22,7 @@ function [thrust torque power] = BEM(liftfunc, pitch, CHORD, BETA, BLADE, v, rpm
       [DtDr DqDr]=bemsolve(A0, B0);                                             % solve system of equations using estimated A and B values
       TEM1=DtDr./(K3*BLADE.*(1+A0)); TEM2=DqDr./(K4*BLADE.^3.*(1+A0));          % calculated A and B values from system of equations
       ERRA = 0.5*(A0-TEM1).^2; ERRB = 0.5*(B0-TEM2).^2;                         % error function
-      dERRA_dA0 = (A0-TEM1).*(1+DtDr./K3./BLADE./(1+A0).^2);                    % derivative of the squared error function
-      dERRB_dB0 = (B0-TEM2);                                                    % derivative of the squared error function
+      dERRA_dA0 = (A0-TEM1); dERRB_dB0 = (B0-TEM2);                             % derivative of the squared error cost functions
       J = sum([ERRA(:); ERRB(:)]); grad = [dERRA_dA0(:); dERRB_dB0(:)];         % convert back to column vectors
     end
     
